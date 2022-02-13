@@ -85,8 +85,17 @@ public class Bot {
         return new AccelerateCommand();
     }
 
-    private boolean checkTurnValid(){
-        
+    private boolean checkTurnValid(int direction){
+        //Check if turn Valid
+        if(direction == -1 && myCar.position.lane == 0){
+            //Check if turn left valid
+            return false;
+        }else if(direction == 1 && myCar.position.lane == 4){
+            //Check if turn right valid
+            return false;
+        }else{
+            return true;
+        }
     }
 
 }
