@@ -30,15 +30,23 @@ public class Bot {
     }
 
     public Command run() {
-        List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block);
-        if (myCar.damage >= 5) {
-            return new FixCommand();
+        if(isLeading()){
+            Command command = keepLeading();
+            return command;
+        }else{
+            Command command = goChase();
+            return command;
         }
-        if (blocks.contains(Terrain.MUD)) {
-            int i = random.nextInt(directionList.size());
-            return new ChangeLaneCommand(directionList.get(i));
-        }
-        return new AccelerateCommand();
+
+        // List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block);
+        // if (myCar.damage >= 5) {
+        //     return new FixCommand();
+        // }
+        // if (blocks.contains(Terrain.MUD)) {
+        //     int i = random.nextInt(directionList.size());
+        //     return new ChangeLaneCommand(directionList.get(i));
+        // }
+        // return new AccelerateCommand();
     }
 
     /**
@@ -60,6 +68,25 @@ public class Bot {
 
         }
         return blocks;
+    }
+
+    private boolean isLeading(){
+        if(myCar.position.block > opponent.position.block){
+            return true;
+        }
+        return false;
+    }
+
+    private Command keepLeading(){
+        return new AccelerateCommand();
+    }
+
+    private Command goChase(){
+        return new AccelerateCommand();
+    }
+
+    private boolean checkTurnValid(){
+        
     }
 
 }
