@@ -2,22 +2,34 @@ package za.co.entelect.challenge;
 
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
+import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
 
 import java.util.*;
 
 import static java.lang.Math.max;
 
+
 public class Bot {
 
     private static final int maxSpeed = 9;
-    private List<Integer> directionList = new ArrayList<>();
+    private List<Command> directionList = new ArrayList<>();
 
     private Random random;
     private GameState gameState;
+
     private Car opponent;
     private Car myCar;
+
+    private final static Command ACCELERATE = new AccelerateCommand();
+    private final static Command LIZARD = new LizardCommand();
+    private final static Command OIL = new OilCommand();
+    private final static Command BOOST = new BoostCommand();
+    private final static Command EMP = new EmpCommand();
     private final static Command FIX = new FixCommand();
+
+    private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
+    private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
 
     public Bot(Random random, GameState gameState) {
         this.random = random;
@@ -25,8 +37,8 @@ public class Bot {
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
 
-        directionList.add(-1);
-        directionList.add(1);
+        directionList.add(TURN_LEFT);
+        directionList.add(TURN_RIGHT);
     }
 
     public Command run() {
@@ -98,4 +110,12 @@ public class Bot {
         }
     }
 
+    private Boolean checkPowerUps(PowerUps powerUpToCheck, PowerUps[] available) {
+        for (PowerUps powerUp: available) {
+            if (powerUp.equals(powerUpToCheck)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
