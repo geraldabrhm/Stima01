@@ -4,6 +4,7 @@ import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.Weight;
 
 import java.util.*;
 
@@ -13,8 +14,8 @@ import static java.lang.Math.max;
 public class Bot {
 
     private static final int maxSpeed = 9;
-    private List<Command> directionList = new ArrayList<>();
 
+    private List<Command> directionList = new ArrayList<>();
     private Random random;
     private GameState gameState;
 
@@ -22,14 +23,15 @@ public class Bot {
     private Car myCar;
 
     private final static Command ACCELERATE = new AccelerateCommand();
+    private final static Command DECELERATE = new DecelerateCommand();
+    private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
+    private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
+    private final static Command NOTHING = new DoNothingCommand();
     private final static Command LIZARD = new LizardCommand();
     private final static Command OIL = new OilCommand();
     private final static Command BOOST = new BoostCommand();
     private final static Command EMP = new EmpCommand();
     private final static Command FIX = new FixCommand();
-
-    private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
-    private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
 
     public Bot(Random random, GameState gameState) {
         this.random = random;
@@ -42,13 +44,30 @@ public class Bot {
     }
 
     public Command run() {
-        if(isLeading()){
-            Command command = keepLeading();
-            return command;
-        }else{
-            Command command = goChase();
-            return command;
+        //* *If we get damage at least 2, just fix our car
+        if(myCar.damage >= 2){
+                return FIX;
         }
+                
+        // * *If we have tweet command, just use it
+        //ToDo: We haven't discuss about row and column for tweet
+        
+        if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
+                return new TweetCommand(2, 3);
+        }
+
+        ArrayList<Value> WeightList = new ArrayList<Value>();
+        if(isLeading()){
+            WeightList = createWeightList(1);
+        }else{
+            WeightList = createWeightList(2);
+        }
+
+        Weight tobetested = new Weight(WeightList);
+        
+        Command bestCommand = tobetested.bestCommand();
+        
+        return bestCommand;
 
         // List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block);
         // if (myCar.damage >= 5) {
@@ -83,26 +102,20 @@ public class Bot {
     }
 
     private boolean isLeading(){
+        //Check if our car is leading 
         if(myCar.position.block > opponent.position.block){
             return true;
         }
         return false;
     }
+    
+    private boolean checkTurnValid(int direction, int lane){
 
-    private Command keepLeading(){
-        return new AccelerateCommand();
-    }
-
-    private Command goChase(){
-        return new AccelerateCommand();
-    }
-
-    private boolean checkTurnValid(int direction){
         //Check if turn Valid
-        if(direction == -1 && myCar.position.lane == 0){
+        if(direction == -1 && lane == 1){
             //Check if turn left valid
-            return false;
-        }else if(direction == 1 && myCar.position.lane == 4){
+            return false;   
+        }else if(direction == 1 && lane== 4){
             //Check if turn right valid
             return false;
         }else{
@@ -118,4 +131,55 @@ public class Bot {
         }
         return false;
     }
+
+    private ArrayList<Value> createWeightList(int condition){
+        ArrayList<Value>AllCommand = new ArrayList<Value>();
+        int lane = myCar.position.lane;
+        PowerUps[] available = myCar.powerups;
+
+        // ? Still not sure, should this method become constructor in weight class or not
+        Value accelerate = new Value("Accelerate");
+        Value decelerate = new Value("Decelerate");
+        Value nothing = new Value("Nothing");
+        AllCommand.add(accelerate);
+        AllCommand.add(decelerate);
+        AllCommand.add(nothing);
+
+        if(checkTurnValid(1, lane)){
+            Value turnright = new Value("Turn_Right");
+            AllCommand.add(turnright);
+        }
+
+        if(checkTurnValid(2, lane)){
+            Value turnleft = new Value("Turn_Left");
+            AllCommand.add(turnleft);            
+        }
+
+        if(checkPowerUps(PowerUps.BOOST, available)){
+            Value useboost = new Value("Use_Boost");
+            AllCommand.add(useboost);
+        }
+        
+        if(checkPowerUps(PowerUps.LIZARD, available)){
+            Value uselizard = new Value("Use_Lizard");
+            AllCommand.add(uselizard);
+        }
+        
+        // Usetweet and Fix excluded
+        
+        if(condition == 1){
+            if(checkPowerUps(PowerUps.OIL, available)){
+                Value useoil = new Value("Use_Oil");
+                AllCommand.add(useoil);
+            }
+        }else{
+            if(checkPowerUps(PowerUps.EMP, available)){
+                Value useemp = new Value("Use_EMP");
+                AllCommand.add(useemp);
+            }
+        }
+
+        return AllCommand;
+    }
+
 }
