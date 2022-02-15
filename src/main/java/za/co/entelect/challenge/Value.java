@@ -22,6 +22,10 @@ public class Value{
     }
 
     public void addValue(Float newScore){
-        this.score = newScore;
+        this.score += newScore;
+    }
+
+    public String getCommand(){
+        return this.command;
     }
 }

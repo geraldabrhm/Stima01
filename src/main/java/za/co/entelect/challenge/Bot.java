@@ -8,8 +8,9 @@ import za.co.entelect.challenge.Weight;
 
 import java.util.*;
 
-import static java.lang.Math.max;
 
+import static java.lang.Math.max;
+import java.lang.Float;
 
 public class Bot {
 
@@ -32,7 +33,7 @@ public class Bot {
     private final static Command BOOST = new BoostCommand();
     private final static Command EMP = new EmpCommand();
     private final static Command FIX = new FixCommand();
-
+    
     public Bot(Random random, GameState gameState) {
         this.random = random;
         this.gameState = gameState;
@@ -65,7 +66,7 @@ public class Bot {
 
         Weight tobetested = new Weight(WeightList);
         
-        Command bestCommand = tobetested.bestCommand();
+        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage);
         
         return bestCommand;
 
@@ -84,9 +85,9 @@ public class Bot {
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private List<Object> getBlocksInFront(int lane, int block) {
+    private List<Terrain> getBlocksInFront(int lane, int block) {
         List<Lane[]> map = gameState.lanes;
-        List<Object> blocks = new ArrayList<>();
+        List<Terrain> blocks = new ArrayList<Terrain>();
         int startBlock = map.get(0)[0].position.block;
 
         Lane[] laneList = map.get(lane - 1);
@@ -139,11 +140,14 @@ public class Bot {
 
         // ? Still not sure, should this method become constructor in weight class or not
         Value accelerate = new Value("Accelerate");
-        Value decelerate = new Value("Decelerate");
         Value nothing = new Value("Nothing");
         AllCommand.add(accelerate);
-        AllCommand.add(decelerate);
         AllCommand.add(nothing);
+        
+        if(!myCar.boosting){
+            Value decelerate = new Value("Decelerate");
+            AllCommand.add(decelerate);
+        }
 
         if(checkTurnValid(1, lane)){
             Value turnright = new Value("Turn_Right");
