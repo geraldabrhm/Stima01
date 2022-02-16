@@ -1,13 +1,12 @@
 package za.co.entelect.challenge;
-import java.lang.Float;
 
 public class Value{
     private
         String command;
-        Float score;
+        double score;
 
     
-    public Value(String command, Float score){
+    public Value(String command, double score){
         this.command = command;
         this.score = score;
     }
@@ -17,15 +16,17 @@ public class Value{
         this.score = 0f;
     }
     
-    public Float getValue(){
+    public double getValue(){
         return this.score;
     }
 
-    public void addValue(Float newScore){
+    public void addValue(double newScore){
         this.score += newScore;
     }
 
     public String getCommand(){
         return this.command;
     }
+
 }
+

@@ -10,44 +10,30 @@ import java.util.*;
 
 
 import static java.lang.Math.max;
-import java.lang.Float;
 
 public class Bot {
 
     private static final int maxSpeed = 9;
 
-    private List<Command> directionList = new ArrayList<>();
+    // private List<Command> directionList = new ArrayList<>();
     private Random random;
     private GameState gameState;
 
     private Car opponent;
     private Car myCar;
 
-    private final static Command ACCELERATE = new AccelerateCommand();
-    private final static Command DECELERATE = new DecelerateCommand();
-    private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
-    private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
-    private final static Command NOTHING = new DoNothingCommand();
-    private final static Command LIZARD = new LizardCommand();
-    private final static Command OIL = new OilCommand();
-    private final static Command BOOST = new BoostCommand();
-    private final static Command EMP = new EmpCommand();
-    private final static Command FIX = new FixCommand();
     
     public Bot(Random random, GameState gameState) {
         this.random = random;
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
-
-        directionList.add(TURN_LEFT);
-        directionList.add(TURN_RIGHT);
     }
 
     public Command run() {
         //* *If we get damage at least 2, just fix our car
         if(myCar.damage >= 2){
-                return FIX;
+            return new FixCommand();
         }
                 
         // * *If we have tweet command, just use it
@@ -68,11 +54,12 @@ public class Bot {
             if(bestblock >= 1500){
                 bestblock = 1499;
             }
-            
+
             return new TweetCommand(opponent.position.lane, bestblock);
         }
 
         ArrayList<Value> WeightList = new ArrayList<Value>();
+
         if(isLeading()){
             WeightList = createWeightList(1);
         }else{
@@ -81,10 +68,30 @@ public class Bot {
 
         Weight tobetested = new Weight(WeightList);
 
+        String bestCommand = tobetested.bestCommand((double)myCar.speed, myCar.damage, available);
         
-        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage, available);
-        
-        return bestCommand;
+        switch(bestCommand){
+            case "Nothing": // Copy
+                return new DoNothingCommand();
+            case "Accelerate": 
+                return new AccelerateCommand();
+            case "Decelerate":
+                return new DecelerateCommand();
+            case "Turn_Right":
+                return new ChangeLaneCommand(1);
+            case "Turn_Left":
+                return new ChangeLaneCommand(-1);
+            case "Use_Boost":
+                return new BoostCommand();
+            case "Use_Lizard":
+                return new LizardCommand();
+            case "Use_Oil":
+                return new OilCommand();
+            case "Use_EMP":
+                return new EmpCommand();
+            default:
+                return new DoNothingCommand();
+        }
 
     }
 

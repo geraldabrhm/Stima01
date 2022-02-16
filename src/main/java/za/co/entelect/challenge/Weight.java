@@ -11,12 +11,12 @@ import java.util.*;
 public class Weight{
     private ArrayList<Value> AllCommand;
 
-    private final Float ShiftColumn = 22.5f;
-    private final Float speedChange = 25.0f;
-    private final Float PowerUp = 20.0f;
-    private final Float MaxSpeed = 22.5f;
-    private final Float ScoreChanged = 10.0f;
-    private final Float BonusScore = 22.5f;
+    private final double ShiftColumn = 22.5;
+    private final double speedChange = 25.0;
+    private final double PowerUp = 20.0;
+    private final double MaxSpeed = 22.5;
+    private final double ScoreChanged = 10.0;
+    private final double BonusScore = 22.5;
     // Hybrid: nothing accelerate decelerate turnright turnleft useboost uselizard // fix usetweet
     // Depan: useemp
     // Belakang: useoil
@@ -27,7 +27,7 @@ public class Weight{
         this.AllCommand = WeightList;
     }
 
-    public Command bestCommand(int currentSpeed, int damage, ArrayList<ArrayList<Terrain>>Available){
+    public String bestCommand(double currentSpeed, int damage, ArrayList<ArrayList<Terrain>>Available){
         // * * Each Lane -> Visible Lane 
         // * * For example Lane 1 -> Visible Lane in Lane 1 (Top One), from behind car (5 Block) until achieveable block in this round
         
@@ -36,17 +36,22 @@ public class Weight{
         powerUp();
         maxSpeedChange(damage);
         bonusPoint(damage);
-        return new DoNothingCommand();
+        scoreChange();
+
+        Collections.sort(AllCommand, (a, b)->{
+            return Double.compare(a.getValue(), b.getValue());
+        });
+
+        return AllCommand.get(0).getCommand();
     }
 
-    private void shiftColumn(int currentSpeed){
-        float cast_currentSpeed = currentSpeed;
+    private void shiftColumn(Double currentSpeed){
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
             
             switch(temp){
                 case "Nothing": // Copy
-                    this.AllCommand.get(i).addValue(cast_currentSpeed);
+                    this.AllCommand.get(i).addValue(currentSpeed);
                     // CurrentSpeed - Akumulasi of degradasi speed oleh rintangan
                 case "Accelerate": 
                     // Current speed + (perubahan speed karena kenaikan speed_state) - Akumulasi of degr ...
@@ -116,3 +121,4 @@ public class Weight{
 
     }
 }
+
