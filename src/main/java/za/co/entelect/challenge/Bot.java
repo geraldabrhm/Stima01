@@ -52,13 +52,24 @@ public class Bot {
                 
         // * *If we have tweet command, just use it
         //ToDo: We haven't discuss about row and column for tweet
+        
         ArrayList<ArrayList<Terrain>> available = getAvailableBlock(myCar.position.block);
         if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
-            int opplane = opponent.position.lane;
-            int oppblock = opponent.position.block;
 
-            int bestblock = oppblock + maxSpeed;
-            return new TweetCommand(opplane, bestblock);
+            int multiply;
+            if(checkPowerUps(PowerUps.BOOST, opponent.powerups) && opponent.damage <= 3){
+                multiply = 15;
+            }else{
+                multiply = maxSpeed;
+            }
+
+            int bestblock = opponent.position.block+ 2 * multiply;
+
+            if(bestblock >= 1500){
+                bestblock = 1499;
+            }
+            
+            return new TweetCommand(opponent.position.lane, bestblock);
         }
 
         ArrayList<Value> WeightList = new ArrayList<Value>();
