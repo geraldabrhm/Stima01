@@ -52,11 +52,7 @@ public class Bot {
                 
         // * *If we have tweet command, just use it
         //ToDo: We haven't discuss about row and column for tweet
-        List<Terrain>Lane1 = getBlocksInFront(1, myCar.position.block);
-        List<Terrain>Lane2 = getBlocksInFront(2, myCar.position.block);
-        List<Terrain>Lane3 = getBlocksInFront(3, myCar.position.block);
-        List<Terrain>Lane4 = getBlocksInFront(4, myCar.position.block);
-        
+        ArrayList<ArrayList<Terrain>> available = getAvailableBlock(myCar.position.block);
         if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
             int opplane = opponent.position.lane;
             int oppblock = opponent.position.block;
@@ -75,7 +71,7 @@ public class Bot {
         Weight tobetested = new Weight(WeightList);
 
         
-        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage, Lane1, Lane2, Lane3, Lane4);
+        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage, available);
         
         return bestCommand;
 
@@ -85,18 +81,22 @@ public class Bot {
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private List<Terrain> getBlocksInFront(int lane, int block) {
+    private ArrayList<ArrayList<Terrain>> getAvailableBlock(int block) {
         List<Lane[]> map = gameState.lanes;
-        List<Terrain> blocks = new ArrayList<Terrain>();
+        ArrayList<ArrayList<Terrain>> blocks = new ArrayList<ArrayList<Terrain>>();
         int startBlock = map.get(0)[0].position.block;
 
-        Lane[] laneList = map.get(lane - 1);
-        for (int i = max(block - startBlock, 0); i <= block - startBlock + Bot.maxSpeed; i++) {
-            if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
-                break;
+        for(int i = 0; i < 4; i ++){
+            ArrayList<Terrain> in = new ArrayList<Terrain>();
+            Lane[] each = map.get(i);
+            for (int j = max(block - startBlock, 0); j <= block - startBlock + Bot.maxSpeed; j++) {
+                if (each[i] == null || each[i].terrain == Terrain.FINISH) {
+                    break;
+                }
+    
+                in.add(each[i].terrain);
             }
-
-            blocks.add(laneList[i].terrain);
+            blocks.add(in);
 
         }
         return blocks;
