@@ -17,6 +17,14 @@ public class Weight{
     private final double MaxSpeed = 22.5;
     private final double ScoreChanged = 10.0;
     private final double BonusScore = 22.5;
+
+
+    private final double empval = 4.0;
+    private final double tweetval = 4.0;
+    private final double lizardval = 3.0;
+    private final double boostval = 7.0;
+    private final double oilval = 2.0;
+
     // Hybrid: nothing accelerate decelerate turnright turnleft useboost uselizard // fix usetweet
     // Depan: useemp
     // Belakang: useoil
@@ -27,15 +35,15 @@ public class Weight{
         this.AllCommand = WeightList;
     }
 
-    public String bestCommand(double currentSpeed, int damage, ArrayList<ArrayList<Terrain>>Available){
+    public String bestCommand(Car myCar, Car opponent, ArrayList<ArrayList<Lane>>Available, int startBlock){
         // * * Each Lane -> Visible Lane 
         // * * For example Lane 1 -> Visible Lane in Lane 1 (Top One), from behind car (5 Block) until achieveable block in this round
-        
-        shiftColumn(currentSpeed);
-        speedChange();
-        powerUp();
-        maxSpeedChange(damage);
-        bonusPoint(damage);
+
+        shiftColumn((double)myCar.speed, myCar.position.lane, Available);
+        speedChange(myCar.position.lane);
+        powerUp(myCar, Available);
+        maxSpeedChange(myCar.damage, myCar.position.lane, myCar.position.block, Available);
+        bonusPoint(myCar.damage, myCar.position.lane, Available, opponent.position.lane, myCar.position.block);
         scoreChange();
 
         Collections.sort(AllCommand, (a, b)->{
@@ -45,80 +53,332 @@ public class Weight{
         return AllCommand.get(0).getCommand();
     }
 
-    private void shiftColumn(Double currentSpeed){
+    private void shiftColumn(double currentSpeed, int lane, ArrayList<ArrayList<Lane>> available){ // gery
+        int indexLane = lane - 1;
+        float truckStraight, truckRight, truckLeft;
+        boolean boolStraight = false, boolRight = false, boolLeft = false;
+        double curr1 = currentSpeed * ShiftColumn;
+        double curr2 = (currentSpeed - 1) * ShiftColumn;
+
+        // Lurus
+        for(int i = 6; i < (currentSpeed + 7); i++) {
+            if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
+                truckStraight = i;
+                truckStraight -= 7;
+                truckStraight *= ShiftColumn;
+                boolStraight = true;
+                break;
+            }
+        }
+        // Kanan
+        for(int i = 6; i < (currentSpeed + 6); i++) {
+            if(available.get(indexLane + 1).get(i).OccupiedByCyberTruck) {
+                truckRight = i;
+                truckRight -= 7;
+                truckRight *= ShiftColumn;
+                boolRight = true;
+                break;
+            }
+        }
+        // Kiri
+        for(int i = 6; i < (currentSpeed + 6); i++) {
+            if(available.get(indexLane - 1).get(i).OccupiedByCyberTruck) {
+                truckLeft = i;
+                truckLeft -= 7;
+                truckLeft *= ShiftColumn;
+                boolLeft = true;
+                break;
+            }
+        }
+        
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
-            
+        
+        // MINIMUM_SPEED = 0
+        // SPEED_STATE_1 = 3
+        // INITIAL_SPEED = 5
+        // SPEED_STATE_2 = 6
+        // SPEED_STATE_3 = 8
+        // MAXIMUM_SPEED = 9
+        // BOOST_SPEED = 15
+
+        // ACCELERATE
+
             switch(temp){
                 case "Nothing": // Copy
-                    this.AllCommand.get(i).addValue(currentSpeed);
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
                     // CurrentSpeed - Akumulasi of degradasi speed oleh rintangan
-                case "Accelerate": 
+                case "Accelerate":
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
                     // Current speed + (perubahan speed karena kenaikan speed_state) - Akumulasi of degr ...
                 case "Decelerate":
+                    this.AllCommand.get(i).addValue(curr1);
                     // current speed - sama kek atas
                 case "Turn_Right":
+                    this.AllCommand.get(i).addValue(curr2);
                     // current speed - Akumulasi of degradasi di lane sebela - 1
                 case "Turn_Left":
+                    this.AllCommand.get(i).addValue(curr2);
                 case "Use_Boost":
+                    this.AllCommand.get(i).addValue(curr1);
                 case "Use_Lizard":
+                    this.AllCommand.get(i).addValue(curr1);
                 case "Use_Oil":
+                    this.AllCommand.get(i).addValue(curr1);
                 case "Use_EMP":
+                    this.AllCommand.get(i).addValue(curr1);
             }
         }
     }
 
-    private void speedChange(){
-
-    }
-
-    private void powerUp(){
+    private void speedChange(int lane){ // gery
+        int indexLane = lane - 1;
+        int affectSpeed = 0;
+        for(int i = 0; i < AllCommand.size(); i ++){
+            String temp = this.AllCommand.get(i).getCommand();
         
+        // ACCELERATE
+        // MINIMUM_SPEED = 0
+        // SPEED_STATE_1 = 3
+        // INITIAL_SPEED = 5
+        // SPEED_STATE_2 = 6
+        // SPEED_STATE_3 = 8
+        // MAXIMUM_SPEED = 9
+        // BOOST_SPEED = 15
+
+            switch(temp){
+                case "Nothing": // Copy
+                    this.AllCommand.get(i).addValue(curr1);
+                    // CurrentSpeed - Akumulasi of degradasi speed oleh rintangan
+                case "Accelerate":
+                    this.AllCommand.get(i).addValue(curr1);
+                    // Current speed + (perubahan speed karena kenaikan speed_state) - Akumulasi of degr ...
+                case "Decelerate":
+                    this.AllCommand.get(i).addValue(curr1);
+                    // current speed - sama kek atas
+                case "Turn_Right":
+                    this.AllCommand.get(i).addValue(curr2);
+                    // current speed - Akumulasi of degradasi di lane sebela - 1
+                case "Turn_Left":
+                    this.AllCommand.get(i).addValue(curr2);
+                case "Use_Boost":
+                    this.AllCommand.get(i).addValue(curr1);
+                case "Use_Lizard":
+                    this.AllCommand.get(i).addValue(curr1);
+                case "Use_Oil":
+                    this.AllCommand.get(i).addValue(curr1);
+                case "Use_EMP":
+                    this.AllCommand.get(i).addValue(curr1);
+            }
+        }
     }
 
-    private void maxSpeedChange(int damage) {
-        
+    private void powerUp(Car myCar, ArrayList<ArrayList<Lane>>available){ 
+        for(int i = 0; i < AllCommand.size(); i ++){
+            double count = 0.0;
+            switch(AllCommand.get(i).getCommand()){
+                case "Nothing":
+                case "Accelerate":
+                case "Decelerate":
+                case "Use_Oil":
+                case "Use_EMP":
+                case "Use_Boost":
+                    count = pwScoreinLane(available, myCar.position.lane - 1, myCar.speed +5, 6);
+                    break;
+                case "Turn Right":
+                    count = pwScoreinLane(available, myCar.position.lane, myCar.speed + 4, 6);
+                    break;
+                case "Turn Left":
+                    count  = pwScoreinLane(available, myCar.position.lane - 2, myCar.speed + 4, 6);
+                    break;
+                case "Use_Lizard":
+                    Terrain curr = available.get(myCar.position.lane - 1).get(myCar.speed + 5).terrain;
+                    if(curr == Terrain.OIL_POWER){
+                        count = oilval;
+                    }else if(curr== Terrain.BOOST){
+                        count = boostval;
+                    }else if(curr == Terrain.EMP){
+                        count = empval;
+                    }else if(curr == Terrain.LIZARD){
+                        count = lizardval;
+                    }else if(curr == Terrain.TWEET){
+                        count = tweetval;
+                    }
+                    break;
+            }
+            AllCommand.get(i).addValue(count);
+        }
     }
 
-    private void bonusPoint(int damage){
+    private double pwScoreinLane(ArrayList<ArrayList<Lane>>available, int lane, int finalblock, int startblock){
+        double count = 0.0;
+        for(int j = startblock; j < finalblock; j ++){
+            Terrain curr = available.get(lane).get(j).terrain;
+            if(curr == Terrain.OIL_POWER){
+                count += oilval;
+            }else if(curr== Terrain.BOOST){
+                count += boostval;
+            }else if(curr == Terrain.EMP){
+                count += empval;
+            }else if(curr == Terrain.LIZARD){
+                count += lizardval;
+            }else if(curr == Terrain.TWEET){
+                count += tweetval;
+            }
+        }
+        return count;
+    }
+
+    private void maxSpeedChange(int damage, int lane, int block, ArrayList<ArrayList<Lane>>available) {
+        for(int i = 0; i < AllCommand.size(); i ++){
+            String temp = this.AllCommand.get(i).getCommand();
+
+            int countdamage = 0;
+            switch (temp) {
+                case "Nothing":
+                    for (int j = block; j < available.get(lane-1).size(); j++) {
+                        if (available.get(lane-1).get(j).terrain == Terrain.MUD || available.get(lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(lane-1).get(j).terrain == Terrain.WALL) {
+                            countdamage++;
+                        }
+                    }
+                    break;
+                case "Accelerate":
+                    for (int j = block; j < available.get(lane-1).size(); j++) {
+                        if (available.get(lane-1).get(j).terrain == Terrain.MUD || available.get(lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(lane-1).get(j).terrain == Terrain.WALL) {
+                            countdamage++;
+                        }
+                    }
+                    break;
+            }
+    }
+
+    private void bonusPoint(int damage, int lane, ArrayList<ArrayList<Lane>>available, int enemyLane, int block){
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
             
-            Float bonus = 0.0f;
             switch(temp) {
                 case "Nothing":
+                    this.AllCommand.get(i).addValue(0);
                     break;
                 case "Accelerate":
+                    this.AllCommand.get(i).addValue(0);
                     break;
                 case "Decelerate":
                     if (temp == "Use_Boost") {
-                        bonus = -1000.0f;
+                        this.AllCommand.get(i).addValue(BonusScore*(-1000.0));
                         break;
                     }
                 case "Turn_Right":
+                    this.AllCommand.get(i).addValue(0);
                     break;
                 case "Turn_Left":
+                    this.AllCommand.get(i).addValue(0);
                     break;
                 case "Use_Boost":
                     if (damage == 0) {
-                        bonus = 300.0f;
+                        this.AllCommand.get(i).addValue(BonusScore*(300.0));
                     }
                     if (damage == 1) {
-                        bonus = 200.f;
+                        this.AllCommand.get(i).addValue(BonusScore*(200.0));
                     }
                     break;
                 case "Use_Lizard":
+                    int many = 0;
+                    for (int j = block; j < available.get(lane-1).size(); j++) {
+                        if (available.get(lane-1).get(j).terrain == Terrain.MUD || available.get(lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(lane-1).get(j).terrain == Terrain.WALL) {
+                            many++;
+                        }
+                    }
+                    int loc = available.get(lane-1).size();
+                    if (many >= 4 && (available.get(lane-1).get(loc).terrain == Terrain.EMPTY || available.get(lane-1).get(loc).terrain == Terrain.OIL_POWER|| available.get(lane-1).get(loc).terrain == Terrain.BOOST || available.get(lane-1).get(loc).terrain == Terrain.LIZARD || available.get(lane-1).get(loc).terrain == Terrain.EMP || available.get(lane-1).get(loc).terrain == Terrain.TWEET)) {
+                        this.AllCommand.get(i).addValue(BonusScore*5);
+                    }
                     break;
                 case "Use_Oil":
+                    if (lane == enemyLane) {
+                        int numLane = 0;
+                        int obstacles = 0;
+                        if (lane - 1 != 0) {
+                            for (int j = 0; j < available.get(lane-2).size(); j++) {
+                                if (available.get(lane-2).get(j).terrain == Terrain.MUD || available.get(lane-2).get(j).terrain == Terrain.OIL_SPILL || available.get(lane-2).get(j).terrain == Terrain.WALL) {
+                                    obstacles++;
+                                }
+                            }
+                            numLane += 2;
+                        }
+                        if (lane + 1 != 5) {
+                            for (int j = 0; j < available.get(lane-2).size(); j++) {
+                                if (available.get(lane+2).get(j).terrain == Terrain.MUD || available.get(lane+2).get(j).terrain == Terrain.OIL_SPILL || available.get(lane+2).get(j).terrain == Terrain.WALL) {
+                                    obstacles++;
+                                }
+                            }
+                            numLane += 2;
+                        }
+                        for (int j = 0; j < available.get(lane-2).size(); j++) {
+                            if (available.get(lane-1).get(j).terrain == Terrain.MUD || available.get(lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(lane-1).get(j).terrain == Terrain.WALL || available.get(lane-1).get(j).OccupiedByCyberTruck) {
+                                obstacles++;
+                            }
+                        }
+                        numLane++;
+                        if (numLane == 5) {
+                            if (obstacles > 5) {
+                                this.AllCommand.get(i).addValue(BonusScore*8.0);
+                            } else {
+                                this.AllCommand.get(i).addValue(BonusScore*6.0);
+                            }
+                        }
+                        else if (numLane == 4) {
+                            if (obstacles > 5) {
+                                this.AllCommand.get(i).addValue(BonusScore*7.0);
+                            } else {
+                                this.AllCommand.get(i).addValue(BonusScore*5.0);
+                            }
+                        }
+                        else if (numLane == 3) {
+                            if (obstacles > 3) {
+                                this.AllCommand.get(i).addValue(BonusScore*6.0);
+                            } else {
+                                this.AllCommand.get(i).addValue(BonusScore*4.0);
+                            }
+                        }
+                        else if (numLane == 2) {
+                            if (obstacles > 3) {
+                                this.AllCommand.get(i).addValue(BonusScore*5.0);
+                            } else {
+                                this.AllCommand.get(i).addValue(BonusScore*4.0);
+                            }
+                        }
+                        else if (numLane == 1) {
+                            if (obstacles > 3) {
+                                this.AllCommand.get(i).addValue(BonusScore*4.0);
+                            } else {
+                                this.AllCommand.get(i).addValue(BonusScore*2.0);
+                            }
+                        }
+                        else {
+                            this.AllCommand.get(i).addValue(0);
+                        }
+                    }
                     break;
                 case "Use_EMP": 
+                    if (lane == enemyLane) {
+                        this.AllCommand.get(i).addValue(BonusScore*9);
+                    }
                     break;
             }
         }
     }
 
     private void scoreChange(){
-
+        
     }
 }
 

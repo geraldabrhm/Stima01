@@ -13,21 +13,35 @@ import static java.lang.Math.max;
 
 public class Bot {
 
-    private static final int maxSpeed = 9;
 
     // private List<Command> directionList = new ArrayList<>();
     private Random random;
     private GameState gameState;
 
+
     private Car opponent;
     private Car myCar;
-
+    private int maxtravel;
     
     public Bot(Random random, GameState gameState) {
         this.random = random;
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
+    
+        if(myCar.damage == 0){
+            maxtravel = 15;
+        }else if(myCar.damage == 1){
+            maxtravel = 9;
+        }else if(myCar.damage == 2){
+            maxtravel = 8;
+        }else if(myCar.damage == 3){
+            maxtravel = 6;
+        }else if(myCar.damage == 4){
+            maxtravel = 3;
+        }else if(myCar.damage == 5){
+            maxtravel = 0;
+        }
     }
 
     public Command run() {
@@ -39,14 +53,14 @@ public class Bot {
         // * *If we have tweet command, just use it
         //ToDo: We haven't discuss about row and column for tweet
         
-        ArrayList<ArrayList<Terrain>> available = getAvailableBlock(myCar.position.block);
+        ArrayList<ArrayList<Lane>> available = getAvailableBlock(myCar.position.block, myCar.powerups);
         if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
 
             int multiply;
             if(checkPowerUps(PowerUps.BOOST, opponent.powerups) && opponent.damage <= 3){
                 multiply = 15;
             }else{
-                multiply = maxSpeed;
+                multiply = 9;
             }
 
             int bestblock = opponent.position.block+ 2 * multiply;
@@ -68,7 +82,7 @@ public class Bot {
 
         Weight tobetested = new Weight(WeightList);
 
-        String bestCommand = tobetested.bestCommand((double)myCar.speed, myCar.damage, available);
+        String bestCommand = tobetested.bestCommand(myCar, opponent, available, gameState.lanes.get(0)[0].position.block);
         
         switch(bestCommand){
             case "Nothing": // Copy
@@ -99,26 +113,32 @@ public class Bot {
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private ArrayList<ArrayList<Terrain>> getAvailableBlock(int block) {
+    private ArrayList<ArrayList<Lane>> getAvailableBlock(int block, PowerUps[] power) {
         List<Lane[]> map = gameState.lanes;
-        ArrayList<ArrayList<Terrain>> blocks = new ArrayList<ArrayList<Terrain>>();
+        ArrayList<ArrayList<Lane>> blocks = new ArrayList<ArrayList<Lane>>();
         int startBlock = map.get(0)[0].position.block;
 
+        if(maxtravel == 15 && !checkPowerUps(PowerUps.BOOST, power) || maxtravel == 15 && !myCar.boosting){
+            maxtravel = 9;
+        }
+
         for(int i = 0; i < 4; i ++){
-            ArrayList<Terrain> in = new ArrayList<Terrain>();
+            ArrayList<Lane> in = new ArrayList<Lane>();
             Lane[] each = map.get(i);
-            for (int j = max(block - startBlock, 0); j <= block - startBlock + Bot.maxSpeed; j++) {
-                if (each[i] == null || each[i].terrain == Terrain.FINISH) {
+            for (int j = max(block - startBlock, 0); j <= block - startBlock + maxtravel; j++) {
+                if (each[j] == null || each[j].terrain == Terrain.FINISH) {
                     break;
                 }
     
-                in.add(each[i].terrain);
+                in.add(each[j]);
             }
             blocks.add(in);
 
         }
         return blocks;
     }
+
+
 
     private boolean isLeading(){
         //Check if our car is leading 
