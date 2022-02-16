@@ -52,9 +52,17 @@ public class Bot {
                 
         // * *If we have tweet command, just use it
         //ToDo: We haven't discuss about row and column for tweet
+        List<Terrain>Lane1 = getBlocksInFront(1, myCar.position.block);
+        List<Terrain>Lane2 = getBlocksInFront(2, myCar.position.block);
+        List<Terrain>Lane3 = getBlocksInFront(3, myCar.position.block);
+        List<Terrain>Lane4 = getBlocksInFront(4, myCar.position.block);
         
         if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
-                return new TweetCommand(2, 3);
+            int opplane = opponent.position.lane;
+            int oppblock = opponent.position.block;
+
+            int bestblock = oppblock + maxSpeed;
+            return new TweetCommand(opplane, bestblock);
         }
 
         ArrayList<Value> WeightList = new ArrayList<Value>();
@@ -65,10 +73,6 @@ public class Bot {
         }
 
         Weight tobetested = new Weight(WeightList);
-        List<Terrain>Lane1 = getBlocksInFront(1, myCar.position.block);
-        List<Terrain>Lane2 = getBlocksInFront(2, myCar.position.block);
-        List<Terrain>Lane3 = getBlocksInFront(3, myCar.position.block);
-        List<Terrain>Lane4 = getBlocksInFront(4, myCar.position.block);
 
         
         Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage, Lane1, Lane2, Lane3, Lane4);
