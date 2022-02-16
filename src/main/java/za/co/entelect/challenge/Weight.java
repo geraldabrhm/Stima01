@@ -27,7 +27,10 @@ public class Weight{
         this.AllCommand = WeightList;
     }
 
-    public Command bestCommand(int currentSpeed, int damage){
+    public Command bestCommand(int currentSpeed, int damage, List<Terrain>Lane1, List<Terrain>Lane2, List<Terrain>Lane3, List<Terrain>Lane4){
+        // * * Each Lane -> Visible Lane 
+        // * * For example Lane 1 -> Visible Lane in Lane 1 (Top One), from behind car (5 Block) until achieveable block in this round
+        
         shiftColumn(currentSpeed);
         speedChange();
         powerUp();
@@ -100,10 +103,13 @@ public class Weight{
                     }
                     break;
                 case "Use_Lizard":
-
+                    break;
                 case "Use_Oil":
+                    break;
                 case "Use_EMP": 
+                    break;
             }
+        }
     }
 
     private void scoreChange(){

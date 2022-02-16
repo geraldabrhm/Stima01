@@ -65,20 +65,16 @@ public class Bot {
         }
 
         Weight tobetested = new Weight(WeightList);
+        List<Terrain>Lane1 = getBlocksInFront(1, myCar.position.block);
+        List<Terrain>Lane2 = getBlocksInFront(2, myCar.position.block);
+        List<Terrain>Lane3 = getBlocksInFront(3, myCar.position.block);
+        List<Terrain>Lane4 = getBlocksInFront(4, myCar.position.block);
+
         
-        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage);
+        Command bestCommand = tobetested.bestCommand(myCar.speed, myCar.damage, Lane1, Lane2, Lane3, Lane4);
         
         return bestCommand;
 
-        // List<Object> blocks = getBlocksInFront(myCar.position.lane, myCar.position.block);
-        // if (myCar.damage >= 5) {
-        //     return new FixCommand();
-        // }
-        // if (blocks.contains(Terrain.MUD)) {
-        //     int i = random.nextInt(directionList.size());
-        //     return new ChangeLaneCommand(directionList.get(i));
-        // }
-        // return new AccelerateCommand();
     }
 
     /**
