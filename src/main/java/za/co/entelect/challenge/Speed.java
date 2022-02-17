@@ -5,12 +5,10 @@ public class Speed {
     private int damage;
     private int currentSpeed;
     private int maxSpeed;
-    private boolean haveBoost;
 
     Speed(int damage, int currentSpeed, boolean haveBoost){
         this.damage = damage;
         this.currentSpeed = currentSpeed;
-        this.haveBoost = haveBoost;
 
         if(this.damage == 0){
             maxSpeed = 15;

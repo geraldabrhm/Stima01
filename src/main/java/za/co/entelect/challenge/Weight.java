@@ -16,8 +16,6 @@ public class Weight{
     private final int ShiftColumn = 22;
     private final int speedChange = 25;
     private final int PowerUp = 20;
-    private final int MaxSpeed = 22;
-    // private final int ScoreChanged = 10;
     private final int BonusScore = 22;
 
 
@@ -70,92 +68,6 @@ public class Weight{
     }
 
     private void shiftColumn(Speed speed, Car myCar, ArrayList<ArrayList<Lane>> available){
-        // Belum pertimbangin collision ke mobil
-        // int lane = myCar.position.lane;
-        
-        // int indexLane = lane - 1;
-
-        // int currentSpeed = speed.getCurrentSpeed();
-        // int curr_max_speed = speed.getMaxSpeed();
-        // int speed_after_accelerate = speed.getAccelerate();
-        // int speed_after_decelerate = speed.getDecelerate();
-        // int start = this.startAll;
-        // double curr1 = (double)currentSpeed * ShiftColumn;
-        // double curr2 = (double)(currentSpeed - 1) * ShiftColumn;
-        // double curr3 = (double)(curr_max_speed) * ShiftColumn;
-        // double curr4 = (double)(speed_after_accelerate) * ShiftColumn;
-        // double curr5 = (double)(speed_after_decelerate) * ShiftColumn;
-
-
-        // /* Case 1: Gak use boost */
-        // // Lurus
-        // for(int i = start; i < (currentSpeed + start); i++) {
-        //     if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
-        //         truckStraight = i;
-        //         truckStraight -= 6;
-        //         truckStraight *= ShiftColumn;
-        //         boolStraight = true;
-        //         break;
-        //     }
-        // }
-        // // Kanan -- Nanti digabung aja sama kiri
-        // if(indexLane != 3) {
-        //     for(int i = start; i < (currentSpeed + start - 1); i++) {
-        //         if(available.get(indexLane + 1).get(i).OccupiedByCyberTruck) {
-        //             truckRight = i;
-        //             truckRight -= 6;
-        //             truckRight *= ShiftColumn;
-        //             boolRight = true;
-        //             break;
-        //         }
-        //     }
-        // }
-        // // Kiri
-        // if(indexLane != 0) {
-        //     for(int i = start; i < (currentSpeed + start -1); i++) {
-        //         if(available.get(indexLane - 1).get(i).OccupiedByCyberTruck) {
-        //             truckLeft = i;
-        //             truckLeft -= 6;
-        //             truckLeft *= ShiftColumn;
-        //             boolLeft = true;
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // /* Case 2: Pake use boost */
-        // for(int i = start; i < (curr_max_speed + start); i++) {
-        //     System.out.println(available.get(0).size());
-        //     if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
-        //         truckBoost = i;
-        //         truckBoost -= 6;
-        //         truckBoost *= ShiftColumn;
-        //         boolBoost = true;
-        //         break;
-        //     }
-        // }
-
-        // /* Case 3: Pake accelerate */
-        // for(int i = start; i < (speed_after_accelerate + start); i++) {
-        //     if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
-        //         truckAccelerate = i;
-        //         truckAccelerate -= 6;
-        //         truckAccelerate *= ShiftColumn;
-        //         boolAccelerate = true;
-        //         break;
-        //     }
-        // }
-
-        // /* Case 4: Pake decelerate */
-        // for(int i = start; i < (speed_after_decelerate + start); i++) {
-        //     if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
-        //         truckDecelerate = i;
-        //         truckDecelerate -= 6;
-        //         truckDecelerate *= ShiftColumn;
-        //         boolDecelerate = true;
-        //         break;
-        //     }
-        // }
         
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
@@ -164,68 +76,32 @@ public class Weight{
                 case "Nothing":
                     this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
                     break;
-                    // if(boolStraight) {
-                    //     this.AllCommand.get(i).addValue(truckStraight);
-                    // } else {
-                    //     this.AllCommand.get(i).addValue(curr1);
-                    // }
                 case "Accelerate":
                     this.AllCommand.get(i).addValue(speed.getAccelerate() * ShiftColumn);
                     break;
-                    // if(boolAccelerate) {
-                    //     this.AllCommand.get(i).addValue(truckAccelerate);
-                    // } else {
-                    //     this.AllCommand.get(i).addValue(curr4);
-                    // }
+
                 case "Decelerate":
-                    // if(boolDecelerate) {
-                    //     this.AllCommand.get(i).addValue(truckDecelerate);
-                    // } else {
+
                     this.AllCommand.get(i).addValue(speed.getDecelerate() * ShiftColumn);
                     break;
-                    // }
                 case "Turn_Right":
-                    // if(boolRight) {
-                    //     this.AllCommand.get(i).addValue(truckRight);
-                    // } else {
                     this.AllCommand.get(i).addValue((speed.getCurrentSpeed() - 1) * ShiftColumn);
                     break;
-                    // }
                 case "Turn_Left":
-                    // if(boolLeft) {
-                    //     this.AllCommand.get(i).addValue(truckLeft);
-                    // } else {
                     this.AllCommand.get(i).addValue((speed.getCurrentSpeed() - 1) * ShiftColumn);
                     break;
-                    // }
                 case "Use_Boost":
-                    // if(boolBoost) {
-                    //     this.AllCommand.get(i).addValue(truckBoost);
-                    // } else {
                     this.AllCommand.get(i).addValue(speed.getBoost() * ShiftColumn);
                     break;
-                    // }
-                case "Use_Lizard": // Nanti dibenerin, khasus khusus soalnya
-                    // if(available.get(indexLane).get(currentSpeed + start).OccupiedByCyberTruck) {
-                    //     this.AllCommand.get(i).addValue(curr2);
-                    // } else {
+                case "Use_Lizard": 
                     this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
                     break;
-                    // }
                 case "Use_Oil":
-                    // if(boolStraight) {
-                    //     this.AllCommand.get(i).addValue(truckStraight);
-                    // } else {
                     this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
                     break;
-                    // }
                 case "Use_EMP":
-                    // if(boolStraight) {
-                    //     this.AllCommand.get(i).addValue(truckStraight);
-                    // } else {
                     this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
                     break;
-                    // }
             }
         }
     }
@@ -274,7 +150,7 @@ public class Weight{
                     AllCommand.get(i).addValue((speedTempBoost - currentSpeed) * speedChange);
                     break;
                 case "Use_Lizard":
-                    if(/*available.get(indexLane).get(currentSpeed + start - 1).OccupiedByCyberTruck ||*/ available.get(indexLane).get(currentSpeed + 5).terrain == Terrain.WALL) {
+                    if( available.get(indexLane).get(currentSpeed + 5).terrain == Terrain.WALL) {
                         AllCommand.get(i).addValue((3 - currentSpeed) * speedChange);
                     } else if (available.get(indexLane).get(currentSpeed + start - 1).terrain == Terrain.MUD || available.get(indexLane).get(currentSpeed + 5).terrain == Terrain.OIL_SPILL) {
                         AllCommand.get(i).addValue((speed.getAccelerate() - currentSpeed) * speedChange);
@@ -331,15 +207,7 @@ public class Weight{
         int speedcount = 0;
         boolean speedbreak = false;
         for(int j = startblock; j < finalblock; j ++){
-            // if(available.get(lane).get(j).OccupiedByCyberTruck){
-            //     if(aggregate == 2){
-            //         count += truckdamage;
-            //     }else if(aggregate == 3){
-            //         count = 3.0;
-            //         speedbreak = true;
-            //     }
-            //     break;
-            // }
+
             Terrain curr = available.get(lane).get(j).terrain;
             switch(aggregate){
                 case 1:
@@ -397,48 +265,6 @@ public class Weight{
         }
     }
 
-    // private void maxSpeedChange(Car myCar, ArrayList<ArrayList<Lane>>available, Speed speed) {
-    //     int start = this.startAll;
-    //     for(int i = 0; i < AllCommand.size(); i ++){
-    //         String temp = this.AllCommand.get(i).getCommand();
-
-    //         int count = 0;
-    //         switch (temp) {
-    //             case "Nothing":
-    //             case "Use_Oil":
-    //             case "Use_EMP":
-    //                 count = itterateLane(available, myCar.position.lane - 1, speed.getCurrentSpeed() + start, start, 2, speed);
-    //                 break;
-    //             case "Turn Right":
-    //                 count = itterateLane(available, myCar.position.lane, speed.getCurrentSpeed() + start - 1, start, 2, speed);
-    //                 break;
-    //             case "Turn Left":
-    //                 count  = itterateLane(available, myCar.position.lane - 2, speed.getCurrentSpeed() + start - 1, start, 2, speed);
-    //                 break;
-    //             case "Accelerate":
-    //                 count = itterateLane(available, myCar.position.lane - 1, speed.getAccelerate() + start, start, 2, speed);
-    //                 break;
-    //             case "Decelerate":
-    //                 count = itterateLane(available, myCar.position.lane - 1, speed.getDecelerate() + start, start, 2, speed);
-    //                 break;
-    //             case "Use_Boost":
-    //                 count = itterateLane(available, myCar.position.lane - 1, speed.getMaxSpeed() + start, start, 2, speed);
-    //                 break;
-    //             case "Use_Lizard":
-    //                 Lane curr = available.get(myCar.position.lane - 1).get(speed.getCurrentSpeed() + start - 1);
-    //                 count = obstaclesPenalty(curr.terrain);
-
-    //                 // if(curr.OccupiedByCyberTruck){
-    //                 //     count += truckdamage;
-    //                 // }
-    //                 break;
-    //         }
-    //         if(count > 5){
-    //             count  = 5;
-    //         }
-    //         AllCommand.get(i).addValue((-count) * MaxSpeed);
-    //     }
-    // }
 
     private void bonusPoint(Car myCar, Car opponent, ArrayList<ArrayList<Lane>>available, Speed speed){
         int start = this.startAll;
@@ -558,140 +384,5 @@ public class Weight{
             }
         }
     }
-
-    // private void scoreChange(Car myCar, ArrayList<ArrayList<Lane>> available, Speed speed){
-    //     double getMud = -3.0;
-    //     double getOil = -4.0;
-    //     double boost = 4.0;
-    //     int start = this.startAll;
-
-    //     for(int i = 0; i < AllCommand.size(); i ++){
-    //         String temp = this.AllCommand.get(i).getCommand();
-
-    //         int checking = 0;
-    //         double counting = 0;
-    //         switch (temp) {
-    //             case "Nothing":
-    //                 checking = speed.getCurrentSpeed();
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting);
-    //                 break;
-    //             case "Accelerate":
-    //                 checking = speed.getAccelerate();
-    //                 for (int j = start; j < start + checking; j++) {
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting);
-    //                 break;
-    //             case "Decelerate":
-    //                 checking = speed.getDecelerate();
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting);
-    //                 break;
-    //             case "Turn_Left":
-    //                 checking = speed.getCurrentSpeed()-1;
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane-2).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-2).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-2).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-2).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-2).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-2).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-2).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting);
-    //                 break;
-    //             case "Turn_Right":
-    //                 checking = speed.getCurrentSpeed()-1;
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting);
-    //                 break;
-    //             case "Use_Boost":
-    //                 checking = speed.getBoost();
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*(counting+4));
-    //                 break;
-    //             case "Use_Oil":
-    //                 checking = speed.getCurrentSpeed();
-    //                 for (int j = start; j < start+checking; j++) {
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                         counting += getMud;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                         counting += getOil;
-    //                     }
-    //                     if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                         counting += boost;
-    //                     }
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting+4);
-    //                 break;
-    //             case "Use_Lizard":
-    //                 checking = speed.getCurrentSpeed();
-    //                 int j = start+checking - 1;
-    //                 if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD) {
-    //                     counting += getMud;
-    //                 }
-    //                 if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL) {
-    //                     counting += getOil;
-    //                 }
-    //                 if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_POWER || available.get(myCar.position.lane-1).get(j).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(j).terrain == Terrain.TWEET) {
-    //                     counting += boost;
-    //                 }
-    //                 this.AllCommand.get(i).addValue(ScoreChanged*counting+4);
-    //                 break;
-    //         }
-    //     }
-    // }
 }
 

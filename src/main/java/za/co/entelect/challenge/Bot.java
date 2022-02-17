@@ -10,10 +10,6 @@ import za.co.entelect.challenge.Speed;
 import java.util.*;
 
 
-import static java.lang.Math.max;
-
-import java.text.NumberFormat.Style;
-
 public class Bot {
 
 
@@ -103,14 +99,9 @@ public class Bot {
 
     }
 
-    /**
-     * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
-     * traversed at max speed.
-     **/
     private ArrayList<ArrayList<Lane>> getAvailableBlock(int block, PowerUps[] power, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
         ArrayList<ArrayList<Lane>> blocks = new ArrayList<ArrayList<Lane>>();
-        int startBlock = map.get(0)[0].position.block;
         int maxtravel = speed.getMaxSpeed();
 
 
