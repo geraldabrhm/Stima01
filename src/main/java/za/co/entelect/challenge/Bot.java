@@ -12,6 +12,8 @@ import java.util.*;
 
 import static java.lang.Math.max;
 
+import java.text.NumberFormat.Style;
+
 public class Bot {
 
 
@@ -30,11 +32,19 @@ public class Bot {
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
 
-        boolean haveBoost = (checkPowerUps(PowerUps.BOOST, myCar.powerups) || myCar.boosting);
+        boolean haveBoost = (checkPowerUps(PowerUps.BOOST, this.myCar.powerups) || this.myCar.boosting);
         this.speed = new Speed(myCar.damage, myCar.speed, haveBoost);
     }
 
     public Command run() {
+        if(this.myCar.position.block >= 1485){
+            if(myCar.speed == 0){
+                return new FixCommand();
+            }else{
+                return new AccelerateCommand();
+            }
+        }
+
         //* *If we get damage at least 2, just fix our car
         if(myCar.damage >= 2){
             return new FixCommand();
@@ -43,15 +53,10 @@ public class Bot {
         // * *If we have tweet command, just use it
         //ToDo: We haven't discuss about row and column for tweet
         
-        ArrayList<ArrayList<Lane>> available = getAvailableBlock(myCar.position.block, myCar.powerups);
-        if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
+        ArrayList<ArrayList<Lane>> available = getAvailableBlock(myCar.position.block, myCar.powerups, this.gameState);
+        if(checkPowerUps(PowerUps.TWEET, this.myCar.powerups)){
 
-            int multiply;
-            if(checkPowerUps(PowerUps.BOOST, opponent.powerups) && opponent.damage <= 3){
-                multiply = 15;
-            }else{
-                multiply = 9;
-            }
+            int multiply = 15;
 
             int bestblock = opponent.position.block+ 2 * multiply;
 
@@ -73,7 +78,6 @@ public class Bot {
         Weight tobetested = new Weight(WeightList);
 
         String bestCommand = tobetested.bestCommand(myCar, opponent, available, gameState.lanes.get(0)[0].position.block, speed);
-        
         switch(bestCommand){
             case "Nothing": // Copy
                 return new DoNothingCommand();
@@ -94,7 +98,7 @@ public class Bot {
             case "Use_EMP":
                 return new EmpCommand();
             default:
-                return new DoNothingCommand();
+                return new AccelerateCommand();
         }
 
     }
@@ -103,20 +107,17 @@ public class Bot {
      * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
      * traversed at max speed.
      **/
-    private ArrayList<ArrayList<Lane>> getAvailableBlock(int block, PowerUps[] power) {
+    private ArrayList<ArrayList<Lane>> getAvailableBlock(int block, PowerUps[] power, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
         ArrayList<ArrayList<Lane>> blocks = new ArrayList<ArrayList<Lane>>();
         int startBlock = map.get(0)[0].position.block;
         int maxtravel = speed.getMaxSpeed();
 
-        if(speed.getMaxSpeed() == 15 && (!checkPowerUps(PowerUps.BOOST, power) ||!myCar.boosting)){
-            maxtravel = 9;
-        }
 
         for(int i = 0; i < 4; i ++){
             ArrayList<Lane> in = new ArrayList<Lane>();
             Lane[] each = map.get(i);
-            for (int j = max(block - startBlock, 0); j <= block - startBlock + maxtravel; j++) {
+            for (int j = 0; j <= maxtravel + 5; j++) {
                 if (each[j] == null || each[j].terrain == Terrain.FINISH) {
                     break;
                 }
@@ -128,8 +129,6 @@ public class Bot {
         }
         return blocks;
     }
-
-
 
     private boolean isLeading(){
         //Check if our car is leading 
@@ -165,7 +164,7 @@ public class Bot {
     private ArrayList<Value> createWeightList(int condition){
         ArrayList<Value>AllCommand = new ArrayList<Value>();
         int lane = myCar.position.lane;
-        PowerUps[] available = myCar.powerups;
+        PowerUps[] available = this.myCar.powerups;
 
         // ? Still not sure, should this method become constructor in weight class or not
         Value accelerate = new Value("Accelerate");
@@ -183,7 +182,7 @@ public class Bot {
             AllCommand.add(turnright);
         }
 
-        if(checkTurnValid(2, lane)){
+        if(checkTurnValid(-1, lane)){
             Value turnleft = new Value("Turn_Left");
             AllCommand.add(turnleft);            
         }

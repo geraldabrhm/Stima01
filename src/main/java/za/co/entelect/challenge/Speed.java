@@ -28,9 +28,6 @@ public class Speed {
     }
 
     public int getMaxSpeed(){
-        if(!haveBoost && maxSpeed == 15){
-            return 9;
-        }
         return this.maxSpeed;
     }
 

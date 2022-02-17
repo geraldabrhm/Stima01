@@ -3,24 +3,24 @@ package za.co.entelect.challenge;
 public class Value{
     private
         String command;
-        double score;
+        int score;
 
     
-    public Value(String command, double score){
+    public Value(String command, int score){
         this.command = command;
         this.score = score;
     }
 
     public Value(String command){
         this.command = command;
-        this.score = 0f;
+        this.score = 0;
     }
     
-    public double getValue(){
+    public int getValue(){
         return this.score;
     }
 
-    public void addValue(double newScore){
+    public void addValue(int newScore){
         this.score += newScore;
     }
 
