@@ -55,9 +55,9 @@ public class Weight{
 
     private void shiftColumn(int currentSpeed, int lane, ArrayList<ArrayList<Lane>> available, int damage, boolean boosting){
         // Belum pertimbangin collision ke mobil
-        int indexLane = lane - 1, curr_max_speed = 0, speed_after_accelerate = 0;
-        double truckStraight = 0, truckRight = 0, truckLeft = 0, truckBoost = 0, truckAccelerate = 0;
-        boolean boolStraight = false, boolRight = false, boolLeft = false, boolBoost = false, boolAccelerate = false;
+        int indexLane = lane - 1, curr_max_speed = 0, speed_after_accelerate = 0, speed_after_decelerate = 0;
+        double truckStraight = 0, truckRight = 0, truckLeft = 0, truckBoost = 0, truckAccelerate = 0, truckDecelerate = 0;
+        boolean boolStraight = false, boolRight = false, boolLeft = false, boolBoost = false, boolAccelerate = false, boolDecelerate = false;
 
         switch (damage) {
             case 0:
@@ -77,21 +77,29 @@ public class Weight{
         switch (currentSpeed) {
             case 0:
                 speed_after_accelerate = 3;
+                speed_after_decelerate = 0;
             case 3:
                 speed_after_accelerate = 5;
+                speed_after_decelerate = 0;
             case 5:
                 speed_after_accelerate = 6;
+                speed_after_decelerate = 3;
             case 6:
                 speed_after_accelerate = 8;
+                speed_after_decelerate = 5;
             case 8:
                 speed_after_accelerate = 9;
+                speed_after_decelerate = 6;
             case 9:
                 speed_after_accelerate = 9;
+                speed_after_decelerate = 8;
             case 15:
                 if(boosting) {
                     speed_after_accelerate = 15;
+                    speed_after_decelerate = 9;
                 } else {
                     speed_after_accelerate = 9;
+                    speed_after_decelerate = 9;
                 }
         }
 
@@ -103,6 +111,7 @@ public class Weight{
         double curr2 = (currentSpeed - 1) * ShiftColumn;
         double curr3 = (curr_max_speed) * ShiftColumn;
         double curr4 = (speed_after_accelerate) * ShiftColumn;
+        double curr5 = (speed_after_decelerate) * ShiftColumn;
 
         /* Case 1: Gak use boost */
         // Lurus
@@ -115,7 +124,7 @@ public class Weight{
                 break;
             }
         }
-        // Kanan
+        // Kanan -- Nanti digabung aja sama kiri
         for(int i = 6; i < (currentSpeed + 5); i++) {
             if(available.get(indexLane + 1).get(i).OccupiedByCyberTruck) {
                 truckRight = i;
@@ -157,6 +166,17 @@ public class Weight{
                 break;
             }
         }
+
+        /* Case 4: Pake decelerate */
+        for(int i = 6; i < (speed_after_decelerate + 6); i++) {
+            if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
+                truckDecelerate = i;
+                truckDecelerate -= 6;
+                truckDecelerate *= ShiftColumn;
+                boolDecelerate = true;
+                break;
+            }
+        }
         
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
@@ -175,10 +195,10 @@ public class Weight{
                         this.AllCommand.get(i).addValue(curr4);
                     }
                 case "Decelerate":
-                    if(boolStraight) {
-                        this.AllCommand.get(i).addValue(truckStraight);
+                    if(boolDecelerate) {
+                        this.AllCommand.get(i).addValue(truckDecelerate);
                     } else {
-                        this.AllCommand.get(i).addValue(curr1);
+                        this.AllCommand.get(i).addValue(curr5);
                     }
                 case "Turn_Right":
                     if(boolRight) {
