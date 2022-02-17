@@ -53,38 +53,39 @@ public class Weight{
         return AllCommand.get(0).getCommand();
     }
 
-    private void shiftColumn(double currentSpeed, int lane, ArrayList<ArrayList<Lane>> available){ // gery
+    private void shiftColumn(double currentSpeed, int lane, ArrayList<ArrayList<Lane>> available){
+        // Belum pertimbangin collision ke mobil
         int indexLane = lane - 1;
-        float truckStraight, truckRight, truckLeft;
+        double truckStraight = 0, truckRight = 0, truckLeft = 0;
         boolean boolStraight = false, boolRight = false, boolLeft = false;
         double curr1 = currentSpeed * ShiftColumn;
         double curr2 = (currentSpeed - 1) * ShiftColumn;
 
         // Lurus
-        for(int i = 6; i < (currentSpeed + 7); i++) {
+        for(int i = 6; i < (currentSpeed + 6); i++) {
             if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
                 truckStraight = i;
-                truckStraight -= 7;
+                truckStraight -= 6;
                 truckStraight *= ShiftColumn;
                 boolStraight = true;
                 break;
             }
         }
         // Kanan
-        for(int i = 6; i < (currentSpeed + 6); i++) {
+        for(int i = 6; i < (currentSpeed + 5); i++) {
             if(available.get(indexLane + 1).get(i).OccupiedByCyberTruck) {
                 truckRight = i;
-                truckRight -= 7;
+                truckRight -= 6;
                 truckRight *= ShiftColumn;
                 boolRight = true;
                 break;
             }
         }
         // Kiri
-        for(int i = 6; i < (currentSpeed + 6); i++) {
+        for(int i = 6; i < (currentSpeed + 5); i++) {
             if(available.get(indexLane - 1).get(i).OccupiedByCyberTruck) {
                 truckLeft = i;
-                truckLeft -= 7;
+                truckLeft -= 6;
                 truckLeft *= ShiftColumn;
                 boolLeft = true;
                 break;
@@ -93,90 +94,108 @@ public class Weight{
         
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
-        
-        // MINIMUM_SPEED = 0
-        // SPEED_STATE_1 = 3
-        // INITIAL_SPEED = 5
-        // SPEED_STATE_2 = 6
-        // SPEED_STATE_3 = 8
-        // MAXIMUM_SPEED = 9
-        // BOOST_SPEED = 15
-
-        // ACCELERATE
 
             switch(temp){
-                case "Nothing": // Copy
+                case "Nothing":
                     if(boolStraight) {
                         this.AllCommand.get(i).addValue(truckStraight);
                     } else {
                         this.AllCommand.get(i).addValue(curr1);
                     }
-                    // CurrentSpeed - Akumulasi of degradasi speed oleh rintangan
                 case "Accelerate":
                     if(boolStraight) {
                         this.AllCommand.get(i).addValue(truckStraight);
                     } else {
                         this.AllCommand.get(i).addValue(curr1);
                     }
-                    // Current speed + (perubahan speed karena kenaikan speed_state) - Akumulasi of degr ...
                 case "Decelerate":
-                    this.AllCommand.get(i).addValue(curr1);
-                    // current speed - sama kek atas
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
                 case "Turn_Right":
-                    this.AllCommand.get(i).addValue(curr2);
-                    // current speed - Akumulasi of degradasi di lane sebela - 1
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckRight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr2);
+                    }
                 case "Turn_Left":
-                    this.AllCommand.get(i).addValue(curr2);
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckLeft);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr2);
+                    }
                 case "Use_Boost":
-                    this.AllCommand.get(i).addValue(curr1);
-                case "Use_Lizard":
-                    this.AllCommand.get(i).addValue(curr1);
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
+                case "Use_Lizard": // Nanti dibenerin, khasus khusus soalnya
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
                 case "Use_Oil":
-                    this.AllCommand.get(i).addValue(curr1);
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
                 case "Use_EMP":
-                    this.AllCommand.get(i).addValue(curr1);
+                    if(boolStraight) {
+                        this.AllCommand.get(i).addValue(truckStraight);
+                    } else {
+                        this.AllCommand.get(i).addValue(curr1);
+                    }
             }
         }
     }
 
+    // ACCELERATE
+    // MINIMUM_SPEED = 0
+    // SPEED_STATE_1 = 3
+    // INITIAL_SPEED = 5
+    // SPEED_STATE_2 = 6
+    // SPEED_STATE_3 = 8
+    // MAXIMUM_SPEED = 9
+    // BOOST_SPEED = 15
+
+    /* Faktor mempercepat kecepatan
+    1. Mempercepat:
+        - Use_Boost
+        - Accelerate
+    2. Memperlambat:
+        - 
+    */
     private void speedChange(int lane){ // gery
         int indexLane = lane - 1;
         int affectSpeed = 0;
+
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
-        
-        // ACCELERATE
-        // MINIMUM_SPEED = 0
-        // SPEED_STATE_1 = 3
-        // INITIAL_SPEED = 5
-        // SPEED_STATE_2 = 6
-        // SPEED_STATE_3 = 8
-        // MAXIMUM_SPEED = 9
-        // BOOST_SPEED = 15
 
             switch(temp){
-                case "Nothing": // Copy
-                    this.AllCommand.get(i).addValue(curr1);
-                    // CurrentSpeed - Akumulasi of degradasi speed oleh rintangan
+                case "Nothing": 
+
                 case "Accelerate":
-                    this.AllCommand.get(i).addValue(curr1);
-                    // Current speed + (perubahan speed karena kenaikan speed_state) - Akumulasi of degr ...
+
                 case "Decelerate":
-                    this.AllCommand.get(i).addValue(curr1);
-                    // current speed - sama kek atas
+
                 case "Turn_Right":
-                    this.AllCommand.get(i).addValue(curr2);
-                    // current speed - Akumulasi of degradasi di lane sebela - 1
+                    
                 case "Turn_Left":
-                    this.AllCommand.get(i).addValue(curr2);
+                    
                 case "Use_Boost":
-                    this.AllCommand.get(i).addValue(curr1);
+                    
                 case "Use_Lizard":
-                    this.AllCommand.get(i).addValue(curr1);
+                    
                 case "Use_Oil":
-                    this.AllCommand.get(i).addValue(curr1);
+                    
                 case "Use_EMP":
-                    this.AllCommand.get(i).addValue(curr1);
+                    
             }
         }
     }
@@ -258,6 +277,7 @@ public class Weight{
                     }
                     break;
             }
+        }
     }
 
     private void bonusPoint(int damage, int lane, ArrayList<ArrayList<Lane>>available, int enemyLane, int block){
