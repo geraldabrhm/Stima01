@@ -39,8 +39,8 @@ public class Weight{
         // * * Each Lane -> Visible Lane 
         // * * For example Lane 1 -> Visible Lane in Lane 1 (Top One), from behind car (5 Block) until achieveable block in this round
 
-        shiftColumn((double)myCar.speed, myCar.position.lane, Available);
-        speedChange(myCar.position.lane);
+        shiftColumn(myCar.speed, myCar.position.lane, Available, myCar.damage, myCar.boosting);
+        speedChange(myCar.position.lane, myCar.speed, Available);
         powerUp(myCar, Available);
         maxSpeedChange(myCar.damage, myCar.position.lane, myCar.position.block, Available);
         bonusPoint(myCar.damage, myCar.position.lane, Available, opponent.position.lane, myCar.position.block);
@@ -53,14 +53,58 @@ public class Weight{
         return AllCommand.get(0).getCommand();
     }
 
-    private void shiftColumn(double currentSpeed, int lane, ArrayList<ArrayList<Lane>> available){
+    private void shiftColumn(int currentSpeed, int lane, ArrayList<ArrayList<Lane>> available, int damage, boolean boosting){
         // Belum pertimbangin collision ke mobil
-        int indexLane = lane - 1;
-        double truckStraight = 0, truckRight = 0, truckLeft = 0;
-        boolean boolStraight = false, boolRight = false, boolLeft = false;
+        int indexLane = lane - 1, curr_max_speed = 0, speed_after_accelerate = 0;
+        double truckStraight = 0, truckRight = 0, truckLeft = 0, truckBoost = 0, truckAccelerate = 0;
+        boolean boolStraight = false, boolRight = false, boolLeft = false, boolBoost = false, boolAccelerate = false;
+
+        switch (damage) {
+            case 0:
+                curr_max_speed = 15;
+            case 1:
+                curr_max_speed = 9;
+            case 2:
+                curr_max_speed = 8;
+            case 3:
+                curr_max_speed = 6;
+            case 4:
+                curr_max_speed = 3;
+            case 5:
+                curr_max_speed = 0;
+        }
+
+        switch (currentSpeed) {
+            case 0:
+                speed_after_accelerate = 3;
+            case 3:
+                speed_after_accelerate = 5;
+            case 5:
+                speed_after_accelerate = 6;
+            case 6:
+                speed_after_accelerate = 8;
+            case 8:
+                speed_after_accelerate = 9;
+            case 9:
+                speed_after_accelerate = 9;
+            case 15:
+                if(boosting) {
+                    speed_after_accelerate = 15;
+                } else {
+                    speed_after_accelerate = 9;
+                }
+        }
+
+        if (speed_after_accelerate > curr_max_speed && !boosting) {
+            speed_after_accelerate = curr_max_speed;
+        }
+
         double curr1 = currentSpeed * ShiftColumn;
         double curr2 = (currentSpeed - 1) * ShiftColumn;
+        double curr3 = (curr_max_speed) * ShiftColumn;
+        double curr4 = (speed_after_accelerate) * ShiftColumn;
 
+        /* Case 1: Gak use boost */
         // Lurus
         for(int i = 6; i < (currentSpeed + 6); i++) {
             if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
@@ -91,6 +135,28 @@ public class Weight{
                 break;
             }
         }
+
+        /* Case 2: Pake use boost */
+        for(int i = 6; i < (curr_max_speed + 6); i++) {
+            if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
+                truckBoost = i;
+                truckBoost -= 6;
+                truckBoost *= ShiftColumn;
+                boolBoost = true;
+                break;
+            }
+        }
+
+        /* Case 3: Pake accelerate */
+        for(int i = 6; i < (speed_after_accelerate + 6); i++) {
+            if(available.get(indexLane).get(i).OccupiedByCyberTruck) {
+                truckAccelerate = i;
+                truckAccelerate -= 6;
+                truckAccelerate *= ShiftColumn;
+                boolAccelerate = true;
+                break;
+            }
+        }
         
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
@@ -103,10 +169,10 @@ public class Weight{
                         this.AllCommand.get(i).addValue(curr1);
                     }
                 case "Accelerate":
-                    if(boolStraight) {
-                        this.AllCommand.get(i).addValue(truckStraight);
+                    if(boolAccelerate) {
+                        this.AllCommand.get(i).addValue(truckAccelerate);
                     } else {
-                        this.AllCommand.get(i).addValue(curr1);
+                        this.AllCommand.get(i).addValue(curr4);
                     }
                 case "Decelerate":
                     if(boolStraight) {
@@ -115,26 +181,26 @@ public class Weight{
                         this.AllCommand.get(i).addValue(curr1);
                     }
                 case "Turn_Right":
-                    if(boolStraight) {
+                    if(boolRight) {
                         this.AllCommand.get(i).addValue(truckRight);
                     } else {
                         this.AllCommand.get(i).addValue(curr2);
                     }
                 case "Turn_Left":
-                    if(boolStraight) {
+                    if(boolLeft) {
                         this.AllCommand.get(i).addValue(truckLeft);
                     } else {
                         this.AllCommand.get(i).addValue(curr2);
                     }
                 case "Use_Boost":
-                    if(boolStraight) {
-                        this.AllCommand.get(i).addValue(truckStraight);
+                    if(boolBoost) {
+                        this.AllCommand.get(i).addValue(truckBoost);
                     } else {
-                        this.AllCommand.get(i).addValue(curr1);
+                        this.AllCommand.get(i).addValue(curr3);
                     }
                 case "Use_Lizard": // Nanti dibenerin, khasus khusus soalnya
-                    if(boolStraight) {
-                        this.AllCommand.get(i).addValue(truckStraight);
+                    if(available.get(indexLane).get(currentSpeed + 5).OccupiedByCyberTruck) {
+                        this.AllCommand.get(i).addValue(curr2);
                     } else {
                         this.AllCommand.get(i).addValue(curr1);
                     }
@@ -163,14 +229,28 @@ public class Weight{
     // MAXIMUM_SPEED = 9
     // BOOST_SPEED = 15
 
+    /* Mud */
+    // SPEED_STATE_1 => SPEED_STATE_1
+    // INITIAL_SPEED => SPEED_STATE_1
+    // SPEED_STATE_2 => SPEED_STATE_1
+    // SPEED_STATE_3 => SPEED_STATE_2
+    // MAXIMUM_SPEED => SPEED_STATE_3
+    // BOOST_SPEED => MAXIMUM_SPEED
+
+    /* Wall */ // Langsung ke SPEED_STATE_1
+
+
     /* Faktor mempercepat kecepatan
     1. Mempercepat:
         - Use_Boost
         - Accelerate
     2. Memperlambat:
-        - 
+        - Oil
+        - Mud
+        - Wall
+        - Collision dengan opponent car
     */
-    private void speedChange(int lane){ // gery
+    private void speedChange(int lane, int currentSpeed, ArrayList<ArrayList<Lane>> available){ // gery
         int indexLane = lane - 1;
         int affectSpeed = 0;
 
