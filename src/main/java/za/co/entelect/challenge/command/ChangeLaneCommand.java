@@ -13,7 +13,7 @@ public class ChangeLaneCommand implements Command {
             this.direction = Direction.valueOf("LEFT");
         }
     }
-
+    
     @Override
     public String render() {
         return String.format("TURN_%s", direction.getLabel());

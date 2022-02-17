@@ -5,6 +5,7 @@ import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.Weight;
+import za.co.entelect.challenge.Speed;
 
 import java.util.*;
 
@@ -21,27 +22,16 @@ public class Bot {
 
     private Car opponent;
     private Car myCar;
-    private int maxtravel;
+    private Speed speed;
     
     public Bot(Random random, GameState gameState) {
         this.random = random;
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
-    
-        if(myCar.damage == 0){
-            maxtravel = 15;
-        }else if(myCar.damage == 1){
-            maxtravel = 9;
-        }else if(myCar.damage == 2){
-            maxtravel = 8;
-        }else if(myCar.damage == 3){
-            maxtravel = 6;
-        }else if(myCar.damage == 4){
-            maxtravel = 3;
-        }else if(myCar.damage == 5){
-            maxtravel = 0;
-        }
+
+        boolean haveBoost = (checkPowerUps(PowerUps.BOOST, myCar.powerups) || myCar.boosting);
+        this.speed = new Speed(myCar.damage, myCar.speed, haveBoost);
     }
 
     public Command run() {
@@ -82,7 +72,7 @@ public class Bot {
 
         Weight tobetested = new Weight(WeightList);
 
-        String bestCommand = tobetested.bestCommand(myCar, opponent, available, gameState.lanes.get(0)[0].position.block);
+        String bestCommand = tobetested.bestCommand(myCar, opponent, available, gameState.lanes.get(0)[0].position.block, speed);
         
         switch(bestCommand){
             case "Nothing": // Copy
@@ -117,8 +107,9 @@ public class Bot {
         List<Lane[]> map = gameState.lanes;
         ArrayList<ArrayList<Lane>> blocks = new ArrayList<ArrayList<Lane>>();
         int startBlock = map.get(0)[0].position.block;
+        int maxtravel = speed.getMaxSpeed();
 
-        if(maxtravel == 15 && !checkPowerUps(PowerUps.BOOST, power) || maxtravel == 15 && !myCar.boosting){
+        if(speed.getMaxSpeed() == 15 && (!checkPowerUps(PowerUps.BOOST, power) ||!myCar.boosting)){
             maxtravel = 9;
         }
 
@@ -222,99 +213,6 @@ public class Bot {
         }
 
         return AllCommand;
-    }
-
-    private int getSpeedApprox(Car myCar, String command) {
-        int speed0 = 0;
-        int speed1 = 3;
-        int speed2 = 5;
-        int speed3 = 6;
-        int speed4 = 8;
-        int speed5 = 9;
-        int speed6 = 15;
-        int[] speedArr = new int[]{speed0, speed1, speed2, speed3, speed4, speed5, speed6};
-        
-        int speednow = 5;
-        int indexSpeed = 0;
-
-        switch (myCar.speed) {
-            case 0:
-                indexSpeed = 0;
-                break;
-            case 3:
-                indexSpeed = 1;
-                break;
-            case 5:
-                indexSpeed = 2;
-                break;
-            case 6:
-                indexSpeed = 3;
-                break;
-            case 8:
-                indexSpeed = 4;
-                break;
-            case 9:
-                indexSpeed = 5;
-                break;
-            case 15:
-                indexSpeed = 6;
-                break;
-        }
-
-        switch (command) {
-            case "Nothing":
-                speednow = indexSpeed;
-                break;
-            case "Accelerate":
-                speednow = indexSpeed+1;
-                if (speednow == 6) {
-                    speednow = 5;
-                }
-                break;
-            case "Decelerate":
-                speednow = indexSpeed-1;
-                if (speednow == -1) {
-                    speednow = 0;
-                }
-                break;
-            case "Turn_Left":
-                speednow = indexSpeed;
-                break;
-            case "Turn_Right":
-                speednow = indexSpeed;
-                break;
-            case "Use_Boost":
-                speednow = 6;
-                break;
-            case "Use_Oil":
-                speednow = indexSpeed;
-                break;
-        }
-        int optSpeed = speedArr[speednow];
-        return optSpeed;
-    }
-
-    private int damageSpeed(Car myCar) {
-        int maks = 15;
-        switch (myCar.damage) {
-            case 1:
-                maks = 9;
-                break;
-            case 2:
-                maks = 8;
-                break;
-            case 3:
-                maks = 6;
-                break;
-            case 4:
-                maks = 3;
-                break;
-            case 5:
-                maks = 0;
-                break;
-        }
-
-        return maks;
     }
 
 }
