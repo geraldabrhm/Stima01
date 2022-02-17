@@ -224,4 +224,97 @@ public class Bot {
         return AllCommand;
     }
 
+    private int getSpeedApprox(Car myCar, String command) {
+        int speed0 = 0;
+        int speed1 = 3;
+        int speed2 = 5;
+        int speed3 = 6;
+        int speed4 = 8;
+        int speed5 = 9;
+        int speed6 = 15;
+        int[] speedArr = new int[]{speed0, speed1, speed2, speed3, speed4, speed5, speed6};
+        
+        int speednow = 5;
+        int indexSpeed = 0;
+
+        switch (myCar.speed) {
+            case 0:
+                indexSpeed = 0;
+                break;
+            case 3:
+                indexSpeed = 1;
+                break;
+            case 5:
+                indexSpeed = 2;
+                break;
+            case 6:
+                indexSpeed = 3;
+                break;
+            case 8:
+                indexSpeed = 4;
+                break;
+            case 9:
+                indexSpeed = 5;
+                break;
+            case 15:
+                indexSpeed = 6;
+                break;
+        }
+
+        switch (command) {
+            case "Nothing":
+                speednow = indexSpeed;
+                break;
+            case "Accelerate":
+                speednow = indexSpeed+1;
+                if (speednow == 6) {
+                    speednow = 5;
+                }
+                break;
+            case "Decelerate":
+                speednow = indexSpeed-1;
+                if (speednow == -1) {
+                    speednow = 0;
+                }
+                break;
+            case "Turn_Left":
+                speednow = indexSpeed;
+                break;
+            case "Turn_Right":
+                speednow = indexSpeed;
+                break;
+            case "Use_Boost":
+                speednow = 6;
+                break;
+            case "Use_Oil":
+                speednow = indexSpeed;
+                break;
+        }
+        int optSpeed = speedArr[speednow];
+        return optSpeed;
+    }
+
+    private int damageSpeed(Car myCar) {
+        int maks = 15;
+        switch (myCar.damage) {
+            case 1:
+                maks = 9;
+                break;
+            case 2:
+                maks = 8;
+                break;
+            case 3:
+                maks = 6;
+                break;
+            case 4:
+                maks = 3;
+                break;
+            case 5:
+                maks = 0;
+                break;
+        }
+
+        return maks;
+    }
+
 }
