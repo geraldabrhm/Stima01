@@ -289,7 +289,7 @@ public class Weight{
                                 if (available.get(myCar.position.lane-2).get(j).terrain == Terrain.MUD || available.get(myCar.position.lane-2).get(j).terrain == Terrain.OIL_SPILL || available.get(myCar.position.lane-2).get(j).terrain == Terrain.WALL) {
                                     obstacles++;
                                 }
-                            }
+                            } 
                             numLane += 2;
                         }
                         if (myCar.position.lane + 1 != 5) {
