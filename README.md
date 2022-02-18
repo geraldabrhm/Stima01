@@ -19,3 +19,8 @@ Dalam tiap roundnya, prioritas penggunaan command adalah langkah ketika sudah me
 1. Java JDK 1.8
 2. Apache Maven
 ## How to Run
+1. Build menggunakan IntellIJ
+2. Hasil .jar dari build dimasukkan ke dalam folder starter-bots di dalam starter-pack
+3. Masukkan ke dalam folder bin atau target
+4. Edit file bot.json untuk nickname dan targetnya
+5. Jika sudah, jalankan run.bat dengan klik dua kali
