@@ -1,6 +1,5 @@
 package za.co.entelect.challenge;
 
-import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
@@ -46,9 +45,7 @@ public class Weight{
         shiftColumn(speed, myCar, Available);
         speedChange(speed, myCar, Available);
         powerUp(myCar, Available, speed);
-        // maxSpeedChange(myCar, Available, speed);
         bonusPoint(myCar, opponent, Available, speed);
-        // scoreChange(myCar, Available, speed);
 
         String valuereturn = AllCommand.get(0).getCommand();
         int max =  AllCommand.get(0).getValue();
@@ -79,9 +76,7 @@ public class Weight{
                 case "Accelerate":
                     this.AllCommand.get(i).addValue(speed.getAccelerate() * ShiftColumn);
                     break;
-
                 case "Decelerate":
-
                     this.AllCommand.get(i).addValue(speed.getDecelerate() * ShiftColumn);
                     break;
                 case "Turn_Right":
