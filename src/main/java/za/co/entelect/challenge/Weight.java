@@ -301,7 +301,7 @@ public class Weight{
                         }
                     }
                     int loc = available.get(myCar.position.lane-1).size();
-                    if (many >= 4 && (available.get(myCar.position.lane-1).get(loc).terrain == Terrain.EMPTY || available.get(myCar.position.lane-1).get(loc).terrain == Terrain.OIL_POWER|| available.get(myCar.position.lane-1).get(loc).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(loc).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(loc).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(loc).terrain == Terrain.TWEET)) {
+                    if (many >= 4 && (available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.EMPTY || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.OIL_POWER|| available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.TWEET)) {
                         this.AllCommand.get(i).addValue(BonusScore*5);
                     }
                     break;
