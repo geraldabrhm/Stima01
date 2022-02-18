@@ -23,13 +23,6 @@ public class Weight{
     private final int lizardval = 5;
     private final int boostval = 6;
     private final int oilval = 3;
-    
-    private final int muddamage = 1;
-    private final int oildamage = 1;
-    private final int walldamage = 2;
-    // Hybrid: nothing accelerate decelerate turnright turnleft useboost uselizard // fix usetweet
-    // Depan: useemp
-    // Belakang: useoil
 
     //Leading -> 1
     //Behind -> 2
@@ -89,11 +82,7 @@ public class Weight{
                     this.AllCommand.get(i).addValue(speed.getBoost() * ShiftColumn);
                     break;
                 case "Use_Lizard": 
-                    this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
-                    break;
                 case "Use_Oil":
-                    this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
-                    break;
                 case "Use_EMP":
                     this.AllCommand.get(i).addValue(speed.getCurrentSpeed() * ShiftColumn);
                     break;
@@ -108,16 +97,16 @@ public class Weight{
         int start = this.startAll;
         int speedTempStraight, speedTempRight=0, speedTempLeft=0, speedTempBoost, speedTempAccelerate, speedTempDecelerate;
         
-        speedTempStraight = itterateLane(available, indexLane, (currentSpeed + start), start, 3, speed);
-        if(indexLane != 3) {
-            speedTempRight = itterateLane(available, (indexLane + 1), (currentSpeed + start - 1), start, 3, speed);
+        speedTempStraight = itterateLane(available, indexLane, (currentSpeed + start), start, 2, speed);
+        if(indexLane != 2) {
+            speedTempRight = itterateLane(available, (indexLane + 1), (currentSpeed + start - 1), start, 2, speed);
         }
         if(indexLane != 0) {
-            speedTempLeft = itterateLane(available, (indexLane - 1), (currentSpeed + start - 1), start, 3, speed);
+            speedTempLeft = itterateLane(available, (indexLane - 1), (currentSpeed + start - 1), start, 2, speed);
         }
-        speedTempBoost = itterateLane(available, indexLane, (curr_max_speed + start), start, 3, speed);
-        speedTempAccelerate = itterateLane(available, indexLane, (speed.getAccelerate() + start), start, 3 , speed );
-        speedTempDecelerate = itterateLane(available, indexLane, (speed.getDecelerate() + start), start, 3 , speed );
+        speedTempBoost = itterateLane(available, indexLane, (curr_max_speed + start), start, 2, speed);
+        speedTempAccelerate = itterateLane(available, indexLane, (speed.getAccelerate() + start), start, 2 , speed );
+        speedTempDecelerate = itterateLane(available, indexLane, (speed.getDecelerate() + start), start, 2 , speed );
 
 
         for(int i = 0; i < AllCommand.size(); i ++){
@@ -194,8 +183,7 @@ public class Weight{
         /* 
             Agrregate:
                 1 -> powerup
-                2 -> maxSpeedchange
-                3 -> speedChange
+                2 -> speedChange
         */
 
         int count = 0;
@@ -209,9 +197,6 @@ public class Weight{
                     count += changepwScore(curr);
                     break;
                 case 2:
-                    count += obstaclesPenalty(curr);
-                    break;
-                case 3:
                     if(curr == Terrain.MUD || curr == Terrain.OIL_SPILL){
                         speedcount ++;
                     }else if(curr == Terrain.WALL){
@@ -248,24 +233,10 @@ public class Weight{
         }
     }
 
-    private int obstaclesPenalty(Terrain curr){
-        if(curr == Terrain.MUD){
-            return muddamage;
-        }else if(curr == Terrain.OIL_SPILL){
-            return oildamage;
-        }else if(curr == Terrain.WALL){
-            return walldamage;
-        }else{
-            return 0;
-        }
-    }
-
-
     private void bonusPoint(Car myCar, Car opponent, ArrayList<ArrayList<Lane>>available, Speed speed){
         int start = this.startAll;
         for(int i = 0; i < AllCommand.size(); i ++){
             String temp = this.AllCommand.get(i).getCommand();
-            
             switch(temp) {
                 case "Nothing":
                     this.AllCommand.get(i).addValue(0);
@@ -285,11 +256,15 @@ public class Weight{
                     this.AllCommand.get(i).addValue(0);
                     break;
                 case "Use_Boost":
-                    if (myCar.damage == 0) {
-                        this.AllCommand.get(i).addValue(BonusScore*(300));
-                    }
-                    if (myCar.damage == 1) {
-                        this.AllCommand.get(i).addValue(BonusScore*(200));
+                    if(myCar.speed == speed.getMaxSpeed()){
+                        this.AllCommand.get(i).addValue(BonusScore * (-100));
+                    }else{
+                        if (myCar.damage == 0) {
+                            this.AllCommand.get(i).addValue(BonusScore*(10));
+                        }
+                        if (myCar.damage == 1) {
+                            this.AllCommand.get(i).addValue(BonusScore*(9));
+                        }
                     }
                     break;
                 case "Use_Lizard":
@@ -302,7 +277,7 @@ public class Weight{
                     }
                     int loc = available.get(myCar.position.lane-1).size();
                     if (many >= 4 && (available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.EMPTY || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.OIL_POWER|| available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.BOOST || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.LIZARD || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.EMP || available.get(myCar.position.lane-1).get(loc - 1).terrain == Terrain.TWEET)) {
-                        this.AllCommand.get(i).addValue(BonusScore*5);
+                        this.AllCommand.get(i).addValue(BonusScore*7);
                     }
                     break;
                 case "Use_Oil":
@@ -319,47 +294,25 @@ public class Weight{
                         }
                         if (myCar.position.lane + 1 != 5) {
                             for (int j = 0; j < available.get(myCar.position.lane-1).size(); j++) {
-                                if (available.get(myCar.position.lane).get(j).terrain == Terrain.MUD || available.get(myCar.position.lane+2).get(j).terrain == Terrain.OIL_SPILL || available.get(myCar.position.lane+2).get(j).terrain == Terrain.WALL) {
+                                if (available.get(myCar.position.lane).get(j).terrain == Terrain.MUD || available.get(myCar.position.lane).get(j).terrain == Terrain.OIL_SPILL || available.get(myCar.position.lane).get(j).terrain == Terrain.WALL) {
                                     obstacles++;
                                 }
                             }
                             numLane += 2;
                         }
                         for (int j = 0; j < available.get(myCar.position.lane-1).size(); j++) {
-                            if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(myCar.position.lane-1).get(j).terrain == Terrain.WALL) /*|| available.get(myCar.position.lane-1).get(j).OccupiedByCyberTruck)*/ {
+                            if (available.get(myCar.position.lane-1).get(j).terrain == Terrain.MUD || available.get(myCar.position.lane-1).get(j).terrain == Terrain.OIL_SPILL || available.get(myCar.position.lane-1).get(j).terrain == Terrain.WALL){
                                 obstacles++;
                             }
                         }
-                        numLane++;
-                        if (numLane == 5) {
+                        if (numLane == 4) {
                             if (obstacles > 5) {
-                                this.AllCommand.get(i).addValue(BonusScore*8);
-                            } else {
-                                this.AllCommand.get(i).addValue(BonusScore*6);
-                            }
-                        }
-                        else if (numLane == 4) {
-                            if (obstacles > 5) {
-                                this.AllCommand.get(i).addValue(BonusScore*7);
-                            } else {
-                                this.AllCommand.get(i).addValue(BonusScore*5);
-                            }
-                        }
-                        else if (numLane == 3) {
-                            if (obstacles > 3) {
                                 this.AllCommand.get(i).addValue(BonusScore*6);
                             } else {
                                 this.AllCommand.get(i).addValue(BonusScore*4);
                             }
                         }
                         else if (numLane == 2) {
-                            if (obstacles > 3) {
-                                this.AllCommand.get(i).addValue(BonusScore*5);
-                            } else {
-                                this.AllCommand.get(i).addValue(BonusScore*4);
-                            }
-                        }
-                        else if (numLane == 1) {
                             if (obstacles > 3) {
                                 this.AllCommand.get(i).addValue(BonusScore*4);
                             } else {
@@ -374,6 +327,8 @@ public class Weight{
                 case "Use_EMP": 
                     if (myCar.position.lane == opponent.position.lane) {
                         this.AllCommand.get(i).addValue(BonusScore*9);
+                    }else if(myCar.position.lane == opponent.position.lane - 1 || myCar.position.lane ==  opponent.position.lane + 1){
+                        this.AllCommand.get(i).addValue(BonusScore * 7);
                     }
                     break;
             }

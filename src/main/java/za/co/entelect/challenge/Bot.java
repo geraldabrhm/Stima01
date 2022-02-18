@@ -50,18 +50,18 @@ public class Bot {
         //ToDo: We haven't discuss about row and column for tweet
         
         ArrayList<ArrayList<Lane>> available = getAvailableBlock(myCar.position.block, myCar.powerups, this.gameState);
-        if(checkPowerUps(PowerUps.TWEET, this.myCar.powerups)){
+        // if(checkPowerUps(PowerUps.TWEET, this.myCar.powerups)){
 
-            int multiply = 15;
+        //     int multiply = 15;
 
-            int bestblock = opponent.position.block+ 2 * multiply;
+        //     int bestblock = opponent.position.block + 2 * multiply;
 
-            if(bestblock >= 1500){
-                bestblock = 1499;
-            }
+        //     if(bestblock >= 1500){
+        //         bestblock = 1499;
+        //     }
 
-            return new TweetCommand(opponent.position.lane, bestblock);
-        }
+        //     return new TweetCommand(opponent.position.lane, bestblock);
+        // }
 
         ArrayList<Value> WeightList = new ArrayList<Value>();
 
@@ -76,8 +76,16 @@ public class Bot {
         String bestCommand = tobetested.bestCommand(myCar, opponent, available, gameState.lanes.get(0)[0].position.block, speed);
         switch(bestCommand){
             case "Nothing": // Copy
+                if(checkPowerUps(PowerUps.TWEET, myCar.powerups)){
+                    int block = getBestBlock(this.opponent);
+                    return new TweetCommand(this.opponent.position.lane, block);
+                }
                 return new DoNothingCommand();
-            case "Accelerate": 
+            case "Accelerate":
+                if(checkPowerUps(PowerUps.TWEET, myCar.powerups) && (myCar.speed == speed.getMaxSpeed() || myCar.speed == 9) ){
+                    int block = getBestBlock(this.opponent);
+                    return new TweetCommand(this.opponent.position.lane, block);
+                }
                 return new AccelerateCommand();
             case "Decelerate":
                 return new DecelerateCommand();
@@ -97,6 +105,18 @@ public class Bot {
                 return new AccelerateCommand();
         }
 
+    }
+
+    private int getBestBlock(Car opponent){
+        int multiply = 15;
+
+        int bestblock = opponent.position.block + 2 * multiply;
+
+        if(bestblock >= 1500){
+            bestblock = 1499;
+        }
+
+        return bestblock;
     }
 
     private ArrayList<ArrayList<Lane>> getAvailableBlock(int block, PowerUps[] power, GameState gameState) {
@@ -188,6 +208,10 @@ public class Bot {
             AllCommand.add(uselizard);
         }
         
+        if(checkPowerUps(PowerUps.TWEET, available)){
+            Value usetweet = new Value("Use_Tweet");
+            AllCommand.add(usetweet);
+        }
         // Usetweet and Fix excluded
         
         if(condition == 1){
